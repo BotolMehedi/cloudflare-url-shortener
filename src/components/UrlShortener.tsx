@@ -169,11 +169,19 @@ export function UrlShortener({ onLinkCreated }: Props) {
           >
             <div className="flex-1 min-w-0 text-center sm:text-left">
               <p className="text-xs font-bold text-emerald-600 uppercase tracking-wider mb-1">Your Short Link</p>
-              <div className="flex items-center justify-center sm:justify-start gap-3">
-                <a href={shortUrl} target="_blank" rel="noreferrer" className="text-xl sm:text-2xl font-bold text-slate-900 hover:text-emerald-600 transition-colors truncate font-mono">
-                  {shortUrl}
-                </a>
-              </div>
+
+<div className="flex items-center justify-center sm:justify-start gap-3 w-full">
+  <input
+    type="text"
+    value={shortUrl}
+    readOnly
+    onClick={(e) => e.target.select()}
+    className="w-full text-lg sm:text-xl font-mono font-bold text-slate-900 bg-slate-50 border border-slate-200 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition"
+  />
+</div>
+
+
+              
             </div>
             <button
               onClick={handleCopy}
