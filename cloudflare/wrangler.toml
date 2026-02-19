@@ -5,4 +5,4 @@ compatibility_date = "2024-12-01"
 [[d1_databases]]
 binding = "DB"
 database_name = "ahcx-db"
-database_id = "<YOUR_D1_DATABASE_ID>"
+database_id = "1c5a6edc-9152-497d-bc6a-1bbf110152b2"
