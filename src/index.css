@@ -1,0 +1,149 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Space+Mono:wght@400;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* DEFAULT: White / Greenish Theme for Public Pages */
+    --background: 0 0% 100%;
+    /* White */
+    --foreground: 222 47% 11%;
+    /* Slate 900 */
+
+    --card: 0 0% 100%;
+    --card-foreground: 222 47% 11%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 222 47% 11%;
+
+    --primary: 158 64% 52%;
+    /* Emerald 500/600 */
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 150 50% 98%;
+    /* Emerald 50 */
+    --secondary-foreground: 161 94% 30%;
+    /* Emerald 800 */
+
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+
+    --accent: 150 50% 98%;
+    --accent-foreground: 161 94% 30%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 158 64% 52%;
+
+    --radius: 0.75rem;
+
+    /* Custom Gradients */
+    --gradient-start: 150 50% 98%;
+    --gradient-end: 0 0% 100%;
+  }
+
+  /* Admin Theme - Forces Light Mode */
+  .admin-theme {
+    --background: 0 0% 100%;
+    /* White */
+    --foreground: 222 47% 11%;
+    /* Slate 900 */
+
+    --card: 0 0% 100%;
+    --card-foreground: 222 47% 11%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 222 47% 11%;
+
+    --primary: 221 83% 53%;
+    /* Professional Blue */
+    --primary-foreground: 210 40% 98%;
+
+    --secondary: 210 40% 96%;
+    --secondary-foreground: 222 47% 11%;
+
+    --muted: 210 40% 96%;
+    --muted-foreground: 215 16% 47%;
+
+    --accent: 210 40% 96%;
+    --accent-foreground: 222 47% 11%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 214 32% 91%;
+    --input: 214 32% 91%;
+    --ring: 221 83% 53%;
+
+    --radius: 0.5rem;
+
+    /* Sidebar Specifics for Admin */
+    --sidebar-background: 222 47% 11%;
+    --sidebar-foreground: 210 40% 98%;
+    --sidebar-primary: 221 83% 53%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 217 33% 17%;
+    --sidebar-accent-foreground: 0 0% 100%;
+    --sidebar-border: 217 33% 17%;
+    --sidebar-ring: 217 91% 60%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+  }
+
+  ::selection {
+    background: hsl(155 75% 50% / 0.25);
+    color: hsl(150 15% 95%);
+  }
+
+  /* Custom scrollbar */
+  ::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: hsl(160 20% 5%);
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: hsl(160 15% 18%);
+    border-radius: 3px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: hsl(155 75% 50% / 0.4);
+  }
+}
+
+@layer utilities {
+  .glass {
+    @apply bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border;
+  }
+
+  .text-gradient {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-primary to-blue-600;
+  }
+
+  .bg-grid-pattern {
+    background-color: #ffffff;
+    background-image:
+      linear-gradient(rgba(16, 185, 129, 0.07) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(16, 185, 129, 0.07) 1px, transparent 1px),
+      linear-gradient(rgba(16, 185, 129, 0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(16, 185, 129, 0.03) 1px, transparent 1px);
+    background-size: 50px 50px, 50px 50px, 10px 10px, 10px 10px;
+    background-position: -1px -1px, -1px -1px, -1px -1px, -1px -1px;
+  }
+}
