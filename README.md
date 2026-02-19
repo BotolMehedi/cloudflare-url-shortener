@@ -66,8 +66,9 @@ Follow the steps below to deploy the project successfully using Cloudflare Pages
 1. Go to **Cloudflare Dashboard**.
 2. Navigate to:  
    **Compute → Pages & Workers → Create Application**
-3. Connect your **GitHub account**.
-4. Select the **forked repository**.
+3. Click Looking to deploy Pages? **Get started** 
+4. Select **Import an existing Git repository**
+5. Connect your **GitHub account** & Then Select the **forked repository**.
 
 ---
 
