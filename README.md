@@ -161,10 +161,6 @@ You can now log in and start managing the system.
 
 ---
 
-⭐ 🌐 Online Access
-
-**Live Demo**: [https://ahcx.pages.dev/](https://ahcx.pages.dev/) - No installation required!
-
 
 ## 🎯 Usage Guide
 
