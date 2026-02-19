@@ -110,6 +110,7 @@ After the project is successfully deployed, follow these steps:
 3. Configure as follows:
    - **Database Name:** `ahcx-db`
    - **Location:** Default / automatic location
+4. Now Copy your **Database UUID** and paste it into Github Repo -> `cloudflare/wrangler.toml` and `/wrangler.jsonc` file in the `"database_id"` field.
 
 ---
 
