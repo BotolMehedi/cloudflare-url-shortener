@@ -28,7 +28,7 @@ const Index = () => {
     <div className="min-h-screen bg-white bg-grid-pattern font-sans text-slate-900 selection:bg-emerald-100 selection:text-emerald-900">
       <div className="fixed inset-0 bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(16,185,129,0.15),rgba(255,255,255,0))] pointer-events-none" />
       <SeoHead
-        title="AHCX — Free URL Shortener with Analytics"
+        title="URL Shortener, Branded Short Links & Analytics | AHCX"
         description="Shorten URLs instantly with AHCX. Free custom aliases, QR codes, link expiration, and real-time click analytics. No signup required."
       />
       <script
