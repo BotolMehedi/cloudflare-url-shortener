@@ -102,11 +102,18 @@ export const onRequestGet: PagesFunction<Env> = async ({ params, request, env })
   const mapped = mapLink(link);
 
   // If this link has social card data AND the requester accepts HTML
-  // (i.e. a browser or social crawler), serve the OG meta page.
-  const accept = request.headers.get("Accept") ?? "";
-  const hasSocialData = mapped.og_title || mapped.og_description || mapped.og_image;
+  
 
-  if (hasSocialData && accept.includes("text/html")) {
+const accept = request.headers.get("Accept") ?? "";
+const userAgent = request.headers.get("User-Agent") ?? "";
+const hasSocialData = mapped.og_image !== null;  // only trigger when og_image exists
+
+const isSocialCrawler = /facebookexternalhit|Twitterbot|LinkedInBot|WhatsApp|Slackbot|TelegramBot|Discordbot|pinterest|Googlebot/i.test(userAgent);
+const isBrowser = accept.includes("text/html");
+
+if (hasSocialData && (isBrowser || isSocialCrawler)) {
+  
+  
     return new Response(buildOgHtml(mapped), {
       status: 200,
       headers: {
