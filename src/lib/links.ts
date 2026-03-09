@@ -11,6 +11,10 @@ export interface ShortenedLink {
   expires_at: string | null;
   clicks: number;
   is_active: boolean;
+  // Social Card fields
+  og_image?: string | null;
+  og_title?: string | null;
+  og_description?: string | null;
 }
 
 async function apiFetch<T>(path: string, options?: RequestInit): Promise<T> {
@@ -46,6 +50,9 @@ export async function createLink(link: {
   short_code: string;
   alias?: string;
   expires_at?: string;
+  og_image?: string;
+  og_title?: string;
+  og_description?: string;
 }): Promise<ShortenedLink> {
   return apiFetch<ShortenedLink>("/links", {
     method: "POST",
