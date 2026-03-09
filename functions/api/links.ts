@@ -1,6 +1,11 @@
 /**
  * Cloudflare Pages Function: /api/links
- * Handles GET (list all - public? maybe should be restricted or just for recent) / POST (create)
+ * Handles GET (list all by client) / POST (create)
+ *
+ * DB migration required — run once against your D1 database:
+ *   ALTER TABLE links ADD COLUMN og_image TEXT;
+ *   ALTER TABLE links ADD COLUMN og_title TEXT;
+ *   ALTER TABLE links ADD COLUMN og_description TEXT;
  */
 
 interface Env {
@@ -24,10 +29,12 @@ function mapLink(row: Record<string, unknown>) {
     is_active: row.is_active === 1 || row.is_active === true,
     created_at: row.created_at,
     expires_at: row.expires_at,
+    og_image: row.og_image ?? null,
+    og_title: row.og_title ?? null,
+    og_description: row.og_description ?? null,
   };
 }
 
-// Public list of links filtered by Client ID
 export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
   const clientId = request.headers.get("X-Client-ID");
 
@@ -46,18 +53,19 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
       short_code: string;
       alias?: string;
       expires_at?: string;
+      og_image?: string;
+      og_title?: string;
+      og_description?: string;
     };
 
     if (!body.original_url || !body.short_code) {
       return json({ error: "Missing required fields" }, 400);
     }
 
-    // Check for blocked domains
     try {
       const url = new URL(body.original_url);
       const hostname = url.hostname;
       const blocked = await env.DB.prepare("SELECT * FROM blocked_domains WHERE domain = ?").bind(hostname).first();
-
       if (blocked) {
         return json({ error: "This domain is blocked and cannot be shortened." }, 400);
       }
@@ -68,7 +76,9 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
     const id = crypto.randomUUID();
 
     await env.DB.prepare(
-      "INSERT INTO links (id, original_url, short_code, alias, expires_at, created_at, client_id) VALUES (?, ?, ?, ?, ?, ?, ?)"
+      `INSERT INTO links
+        (id, original_url, short_code, alias, expires_at, created_at, client_id, og_image, og_title, og_description)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
     )
       .bind(
         id,
@@ -77,13 +87,14 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
         body.alias ?? null,
         body.expires_at ?? null,
         Date.now(),
-        clientId || null
+        clientId || null,
+        body.og_image ?? null,
+        body.og_title ?? null,
+        body.og_description ?? null,
       )
       .run();
 
-    const link = await env.DB.prepare(
-      "SELECT * FROM links WHERE id = ?"
-    ).bind(id).first();
+    const link = await env.DB.prepare("SELECT * FROM links WHERE id = ?").bind(id).first();
 
     return json(mapLink(link!), 201);
 
