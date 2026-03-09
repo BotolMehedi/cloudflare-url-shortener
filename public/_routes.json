@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "include": ["/api/*", "/*"],
+  "include": ["/api/*"],
   "exclude": [
     "/assets/*",
     "/favicon.png",
