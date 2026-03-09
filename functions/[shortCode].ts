@@ -80,7 +80,6 @@ export const onRequest: PagesFunction<Env> = async (context) => {
   <meta name="twitter:title" content="${ogTitle}" />
   <meta name="twitter:description" content="${ogDesc}" />
   <meta name="twitter:image" content="${escapeHtml(fullOgImage)}" />
-  <meta http-equiv="refresh" content="0;url=${escapeHtml(originalUrl)}" />
 </head>
 <body>
   <p>Redirecting to <a href="${escapeHtml(originalUrl)}">${escapeHtml(originalUrl)}</a></p>
