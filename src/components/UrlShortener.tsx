@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { motion } from "framer-motion";
-import { Link2, Sparkles, Clock, Copy, Check, ArrowRight } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Link2, Sparkles, Clock, Copy, Check, ArrowRight, ImageIcon, Type, AlignLeft } from "lucide-react";
 import { ShortenedLink, generateShortCode, isValidUrl, isShortCodeTaken, createLink } from "@/lib/links";
 import { toast } from "sonner";
 
@@ -15,6 +15,10 @@ export function UrlShortener({ onLinkCreated }: Props) {
   const [result, setResult] = useState<ShortenedLink | null>(null);
   const [copied, setCopied] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [mode, setMode] = useState<"basic" | "social">("basic");
+  const [imageUrl, setImageUrl] = useState("");
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -44,12 +48,21 @@ export function UrlShortener({ onLinkCreated }: Props) {
         short_code: shortCode,
         alias: alias || undefined,
         expires_at: expiresAt,
+        // Social Card fields — only sent when in social mode
+        ...(mode === "social" && {
+          og_image: imageUrl || undefined,
+          og_title: title || undefined,
+          og_description: description || undefined,
+        }),
       });
 
       setResult(newLink);
       setUrl("");
       setAlias("");
       setExpiry("never");
+      setImageUrl("");
+      setTitle("");
+      setDescription("");
       onLinkCreated();
       toast.success("Link shortened successfully!");
     } catch (err) {
@@ -98,68 +111,164 @@ export function UrlShortener({ onLinkCreated }: Props) {
           </p>
         </motion.div>
 
-        <motion.form
+        <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.3 }}
-          onSubmit={handleSubmit}
-          className="bg-white border border-emerald-100 rounded-3xl p-3 sm:p-4 shadow-xl shadow-emerald-100/20"
+          className="bg-white border border-emerald-100 rounded-3xl shadow-xl shadow-emerald-100/20 overflow-hidden"
         >
-          <div className="flex flex-col sm:flex-row gap-3">
-            <div className="relative flex-1 group">
-              <Link2 className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 group-focus-within:text-emerald-600 transition-colors" />
-              <input
-                type="text"
-                placeholder="Paste your long link here..."
-                value={url}
-                onChange={(e) => setUrl(e.target.value)}
-                className="w-full h-14 pl-12 pr-4 rounded-xl bg-slate-50 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:bg-white focus:ring-2 focus:ring-emerald-100 border border-transparent focus:border-emerald-200 transition-all font-medium text-base"
-              />
-            </div>
+          {/* Tab Switcher */}
+          <div className="flex border-b border-slate-100 px-3 pt-3 gap-1">
             <button
-              type="submit"
-              disabled={loading}
-              className="h-14 px-8 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-base transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-emerald-200 hover:shadow-emerald-300 flex items-center justify-center gap-2 min-w-[160px]"
+              type="button"
+              onClick={() => setMode("basic")}
+              className={`flex items-center gap-2 px-4 py-2.5 rounded-t-xl text-sm font-semibold transition-all ${
+                mode === "basic"
+                  ? "bg-emerald-50 text-emerald-700 border border-emerald-100 border-b-white -mb-px z-10"
+                  : "text-slate-500 hover:text-slate-700 hover:bg-slate-50"
+              }`}
             >
-              {loading ? (
-                <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-              ) : (
-                <>
-                  Shorten
-                  <ArrowRight className="w-4 h-4" />
-                </>
-              )}
+              <Link2 className="w-3.5 h-3.5" />
+              Basic
+            </button>
+            <button
+              type="button"
+              onClick={() => setMode("social")}
+              className={`flex items-center gap-2 px-4 py-2.5 rounded-t-xl text-sm font-semibold transition-all ${
+                mode === "social"
+                  ? "bg-emerald-50 text-emerald-700 border border-emerald-100 border-b-white -mb-px z-10"
+                  : "text-slate-500 hover:text-slate-700 hover:bg-slate-50"
+              }`}
+            >
+              <Sparkles className="w-3.5 h-3.5" />
+              Social Card
             </button>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-3">
-            <div className="relative">
-              <Sparkles className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-              <input
-                type="text"
-                placeholder="Alias (optional)"
-                value={alias}
-                onChange={(e) => setAlias(e.target.value.replace(/[^a-zA-Z0-9-_]/g, ""))}
-                className="w-full h-12 pl-10 pr-4 rounded-xl bg-slate-50 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:bg-white focus:ring-2 focus:ring-emerald-100 border border-transparent focus:border-emerald-200 transition-all text-sm"
-              />
-            </div>
-            <div className="relative">
-              <Clock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-              <select
-                value={expiry}
-                onChange={(e) => setExpiry(e.target.value)}
-                className="w-full h-12 pl-10 pr-4 rounded-xl bg-slate-50 text-slate-900 focus:outline-none focus:bg-white focus:ring-2 focus:ring-emerald-100 border border-transparent focus:border-emerald-200 transition-all text-sm appearance-none cursor-pointer"
-                style={{ colorScheme: 'light' }}
+          {/* Form */}
+          <form onSubmit={handleSubmit} className="p-3 sm:p-4">
+            <div className="flex flex-col sm:flex-row gap-3">
+              <div className="relative flex-1 group">
+                <Link2 className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 group-focus-within:text-emerald-600 transition-colors" />
+                <input
+                  type="text"
+                  placeholder="Paste your long link here..."
+                  value={url}
+                  onChange={(e) => setUrl(e.target.value)}
+                  className="w-full h-14 pl-12 pr-4 rounded-xl bg-slate-50 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:bg-white focus:ring-2 focus:ring-emerald-100 border border-transparent focus:border-emerald-200 transition-all font-medium text-base"
+                />
+              </div>
+              <button
+                type="submit"
+                disabled={loading}
+                className="h-14 px-8 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-base transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-emerald-200 hover:shadow-emerald-300 flex items-center justify-center gap-2 min-w-[160px]"
               >
-                <option value="never" className="bg-white text-slate-900">Never expires</option>
-                <option value="1h" className="bg-white text-slate-900">Expires in 1 hour</option>
-                <option value="24h" className="bg-white text-slate-900">Expires in 24 hours</option>
-                <option value="7d" className="bg-white text-slate-900">Expires in 7 days</option>
-                <option value="30d" className="bg-white text-slate-900">Expires in 30 days</option>
-              </select>
+                {loading ? (
+                  <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                ) : (
+                  <>
+                    Shorten
+                    <ArrowRight className="w-4 h-4" />
+                  </>
+                )}
+              </button>
             </div>
-          </div>
-        </motion.form>
+
+            {/* Social Card Fields */}
+            <AnimatePresence>
+              {mode === "social" && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: "auto" }}
+                  exit={{ opacity: 0, height: 0 }}
+                  transition={{ duration: 0.25, ease: "easeInOut" }}
+                  className="overflow-hidden"
+                >
+                  <div className="flex flex-col gap-3 mt-3 pb-0.5">
+                    <div className="flex items-start gap-3 p-3 rounded-xl bg-emerald-50/60 border border-emerald-100">
+                      <Sparkles className="w-4 h-4 text-emerald-600 mt-0.5 shrink-0" />
+                      <p className="text-xs text-emerald-700 leading-relaxed">
+                        When this link is shared on Slack, Twitter, iMessage, Discord, etc., it will display your custom title, description, and image instead of the destination page's defaults.
+                      </p>
+                    </div>
+
+                    {/* Image URL */}
+                    <div className="relative group">
+                      <ImageIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-emerald-600 transition-colors" />
+                      <input
+                        type="text"
+                        placeholder="Image URL (optional) — shown as preview thumbnail"
+                        value={imageUrl}
+                        onChange={(e) => setImageUrl(e.target.value)}
+                        className="w-full h-12 pl-10 pr-4 rounded-xl bg-slate-50 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:bg-white focus:ring-2 focus:ring-emerald-100 border border-transparent focus:border-emerald-200 transition-all text-sm"
+                      />
+                    </div>
+
+                    {/* Title */}
+                    <div className="relative group">
+                      <Type className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-emerald-600 transition-colors" />
+                      <input
+                        type="text"
+                        placeholder="Title (optional) — shown as the card headline"
+                        value={title}
+                        maxLength={115}
+                        onChange={(e) => setTitle(e.target.value)}
+                        className="w-full h-12 pl-10 pr-16 rounded-xl bg-slate-50 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:bg-white focus:ring-2 focus:ring-emerald-100 border border-transparent focus:border-emerald-200 transition-all text-sm"
+                      />
+                      <span className={`absolute right-4 top-1/2 -translate-y-1/2 text-xs tabular-nums ${title.length >= 105 ? "text-amber-500" : "text-slate-400"}`}>
+                        {title.length}/115
+                      </span>
+                    </div>
+
+                    {/* Description */}
+                    <div className="relative group">
+                      <AlignLeft className="absolute left-4 top-3.5 w-4 h-4 text-slate-400 group-focus-within:text-emerald-600 transition-colors" />
+                      <textarea
+                        placeholder="Description (optional) — shown as the card subtitle"
+                        value={description}
+                        maxLength={140}
+                        onChange={(e) => setDescription(e.target.value)}
+                        rows={3}
+                        className="w-full pl-10 pr-16 pt-3 pb-3 rounded-xl bg-slate-50 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:bg-white focus:ring-2 focus:ring-emerald-100 border border-transparent focus:border-emerald-200 transition-all text-sm resize-none"
+                      />
+                      <span className={`absolute right-4 bottom-3 text-xs tabular-nums ${description.length >= 130 ? "text-amber-500" : "text-slate-400"}`}>
+                        {description.length}/140
+                      </span>
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-3">
+              <div className="relative">
+                <Sparkles className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                <input
+                  type="text"
+                  placeholder="Alias (optional)"
+                  value={alias}
+                  onChange={(e) => setAlias(e.target.value.replace(/[^a-zA-Z0-9-_]/g, ""))}
+                  className="w-full h-12 pl-10 pr-4 rounded-xl bg-slate-50 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:bg-white focus:ring-2 focus:ring-emerald-100 border border-transparent focus:border-emerald-200 transition-all text-sm"
+                />
+              </div>
+              <div className="relative">
+                <Clock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                <select
+                  value={expiry}
+                  onChange={(e) => setExpiry(e.target.value)}
+                  className="w-full h-12 pl-10 pr-4 rounded-xl bg-slate-50 text-slate-900 focus:outline-none focus:bg-white focus:ring-2 focus:ring-emerald-100 border border-transparent focus:border-emerald-200 transition-all text-sm appearance-none cursor-pointer"
+                  style={{ colorScheme: 'light' }}
+                >
+                  <option value="never" className="bg-white text-slate-900">Never expires</option>
+                  <option value="1h" className="bg-white text-slate-900">Expires in 1 hour</option>
+                  <option value="24h" className="bg-white text-slate-900">Expires in 24 hours</option>
+                  <option value="7d" className="bg-white text-slate-900">Expires in 7 days</option>
+                  <option value="30d" className="bg-white text-slate-900">Expires in 30 days</option>
+                </select>
+              </div>
+            </div>
+          </form>
+        </motion.div>
 
         {result && (
           <motion.div
@@ -169,19 +278,15 @@ export function UrlShortener({ onLinkCreated }: Props) {
           >
             <div className="flex-1 min-w-0 text-center sm:text-left">
               <p className="text-xs font-bold text-emerald-600 uppercase tracking-wider mb-1">Your Short Link</p>
-
-<div className="flex items-center justify-center sm:justify-start gap-3 w-full">
-  <input
-    type="text"
-    value={shortUrl}
-    readOnly
-    onClick={(e) => e.target.select()}
-    className="w-full text-lg sm:text-xl font-mono font-bold text-slate-900 bg-slate-50 border border-slate-200 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition"
-  />
-</div>
-
-
-              
+              <div className="flex items-center justify-center sm:justify-start gap-3 w-full">
+                <input
+                  type="text"
+                  value={shortUrl}
+                  readOnly
+                  onClick={(e) => (e.target as HTMLInputElement).select()}
+                  className="w-full text-lg sm:text-xl font-mono font-bold text-slate-900 bg-slate-50 border border-slate-200 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition"
+                />
+              </div>
             </div>
             <button
               onClick={handleCopy}
